@@ -3,45 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de Bord Projet | BRAIN IT</title>
+    <title>Magasin autonome PIVOTIS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Calm Neutrals -->
-    <!-- Application Structure Plan: A single-page dashboard with tab-based navigation (Tableau de Bord, Méthodologie, Gouvernance, Risques, Planning). This structure is chosen to allow non-linear, task-oriented exploration, enabling stakeholders to quickly access specific project facets without scrolling through a long document. The Dashboard provides a high-level overview, while dedicated sections allow deep dives into specific areas using interactive components (charts, cards, tables), which is more user-friendly and efficient than a static report. -->
+    <!-- Chosen Palette: Orange & Black -->
+    <!-- Application Structure Plan: A single-page dashboard with tab-based navigation. The "Accueil" section is rewritten for a corporate kickoff context. The color scheme is changed to orange and black. -->
     <!-- Visualization & Content Choices: 
-        - Report Info: Project timeline & key numbers -> Goal: Inform -> Viz: Key metric cards -> Interaction: Static display -> Justification: Quick, scannable overview.
-        - Report Info: Hybrid V-Scrum methodology -> Goal: Explain/Compare -> Viz: Side-by-side HTML/CSS layout and a simple HTML flow diagram -> Interaction: Visual comparison -> Justification: Clarifies the dual-track approach better than plain text.
-        - Report Info: Project Roles & RACI -> Goal: Organize/Clarify -> Viz: Interactive HTML cards & table -> Interaction: Click/hover to reveal details -> Justification: Makes dense information digestible and easy to query.
-        - Report Info: Risk Matrix (Table 3) -> Goal: Analyze Relationships -> Viz: Interactive Bubble Chart (Chart.js) -> Interaction: Click bubble to see details, filter by category -> Justification: Visually prioritizes risks by criticality far more effectively than a table.
-        - Report Info: Revised Gantt Chart (Table 4) -> Goal: Show Change/Time -> Viz: Gantt-style Horizontal Bar Chart (Chart.js) -> Interaction: Hover for tooltips, toggle detail level -> Justification: Provides an intuitive and dynamic view of the project schedule.
+        - Report Info: Project Introduction -> Goal: Contextualize -> Viz: "Accueil" section updated for a corporate audience.
+        - Report Info: Risk Matrix (Table 3) -> Goal: Analyze/Simplify -> Viz: Interactive Bubble Chart (nuage de points) visually represents risk criticality by size and position.
+        - Report Info: Revised Gantt Chart (Table 4) -> Goal: Show Time -> Viz: The detailed Gantt chart now includes functional descriptions for each Agile sprint.
+        - Report Info: RACI Matrix -> Goal: Clarify -> Viz: The RACI table cells have a light background color in addition to the colored tags for readability.
         - Library/Method: All charts use Chart.js on a Canvas element. Diagrams and layouts use HTML/CSS with Tailwind.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #f5f5f4; color: #1c1917; }
         .chart-container { position: relative; width: 100%; max-width: 900px; margin-left: auto; margin-right: auto; height: 400px; max-height: 50vh; }
         .nav-button { transition: all 0.3s ease; }
-        .nav-button.active { background-color: #3b82f6; color: white; }
-        .nav-button:not(.active):hover { background-color: #f3f4f6; }
-        .section { display: none; }
+        .nav-button.active { background-color: #f97316; color: white; }
+        .nav-button:not(.active):hover { background-color: #e7e5e4; }
+        .section { display: none; animation: fadeIn 0.5s; }
         .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .kpi-card { background-color: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); text-align: center; }
         .risk-card { transition: all 0.3s ease; }
         .raci-cell:hover .tooltip { opacity: 1; visibility: visible; }
+        .raci-cell.raci-r { background-color: rgba(74, 222, 128, 0.1); }
+        .raci-cell.raci-a { background-color: rgba(248, 113, 113, 0.1); }
+        .raci-cell.raci-c { background-color: rgba(251, 191, 36, 0.1); }
+        .raci-cell.raci-i { background-color: rgba(96, 165, 250, 0.1); }
+        .kanban-board { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem; }
+        .kanban-column { flex: 0 0 280px; background-color: #f3f4f6; border-radius: 0.5rem; padding: 0.75rem; }
+        .kanban-card { background-color: white; border-radius: 0.375rem; padding: 0.75rem; margin-top: 0.75rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); cursor: pointer; transition: transform 0.2s; }
+        .kanban-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
     </style>
 </head>
-<body class="bg-stone-50 text-stone-800">
+<body class="bg-stone-100 text-stone-900">
 
     <div class="min-h-screen">
         <header class="bg-white shadow-sm sticky top-0 z-10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-4">
-                    <h1 class="text-2xl font-bold text-blue-600">Projet Magasin Autonome <span class="font-normal text-stone-500">| BRAIN IT</span></h1>
+                    <h1 class="text-2xl font-bold text-orange-600">Magasin autonome PIVOTIS</h1>
                     <nav class="hidden md:flex space-x-2">
-                        <button data-target="dashboard" class="nav-button active px-4 py-2 rounded-md text-sm font-medium">Tableau de Bord</button>
+                        <button data-target="accueil" class="nav-button active px-4 py-2 rounded-md text-sm font-medium">Accueil</button>
+                        <button data-target="dashboard" class="nav-button px-4 py-2 rounded-md text-sm font-medium">Tableau de Bord</button>
                         <button data-target="methodology" class="nav-button px-4 py-2 rounded-md text-sm font-medium">Méthodologie</button>
                         <button data-target="governance" class="nav-button px-4 py-2 rounded-md text-sm font-medium">Gouvernance</button>
                         <button data-target="risks" class="nav-button px-4 py-2 rounded-md text-sm font-medium">Risques</button>
@@ -52,24 +61,49 @@
         </header>
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Accueil Section -->
+            <section id="accueil" class="section active">
+                <div class="bg-white p-8 rounded-lg shadow">
+                    <h2 class="text-3xl font-bold mb-4 text-orange-600">Réunion de Lancement : Projet "Magasin Autonome"</h2>
+                    <p class="text-stone-600 text-lg mb-6">Présenté par Nicolas DELAPLACE & Salimata OUATTARA, Business Developers chez Pivotis.</p>
+                    
+                    <div class="prose max-w-none">
+                        <h3 class="text-xl font-semibold">Le Partenariat Stratégique</h3>
+                        <p>Cette réunion marque le lancement officiel du projet "Magasin Autonome", fruit d'une collaboration étroite entre notre client, leader de la distribution, et notre société, <strong>Pivotis</strong>. Nous sommes fiers d'avoir été choisis pour relever ce défi technologique et commercial majeur.</p>
+                        <p>L'ambition est claire : créer une expérience d'achat révolutionnaire en développant un magasin pilote entièrement autonome. Ce projet répond à un double objectif stratégique pour notre client : innover pour se différencier et fluidifier le parcours d'achat. Le respect du délai de livraison en **un an** est la condition sine qua non de notre succès commun.</p>
+                        
+                        <h3 class="text-xl font-semibold mt-6">Objectifs de cette Réunion</h3>
+                        <p>Ce tableau de bord interactif a pour but de partager et de valider avec l'ensemble des parties prenantes le cadre de réalisation du projet. Il constitue notre feuille de route et notre engagement mutuel. Nous allons parcourir ensemble :</p>
+                        <ul class="list-disc list-inside">
+                            <li>Les indicateurs de performance et la vue d'ensemble du projet.</li>
+                            <li>L'approche méthodologique hybride que nous déploierons.</li>
+                            <li>La structure de gouvernance et les responsabilités de chacun.</li>
+                            <li>L'analyse des risques et nos plans de mitigation.</li>
+                            <li>Le planning détaillé qui nous mènera à la mise en production.</li>
+                        </ul>
+                        <p class="mt-4">L'objectif aujourd'hui est d'assurer que nous partageons tous la même vision et les mêmes règles du jeu pour démarrer ce projet sur des bases solides et transparentes.</p>
+                    </div>
+                </div>
+            </section>
+
             <!-- Dashboard Section -->
-            <section id="dashboard" class="section active">
+            <section id="dashboard" class="section">
                 <div class="mb-8">
                     <h2 class="text-3xl font-bold mb-2">Tableau de Bord du Projet</h2>
-                    <p class="text-stone-600">Vue d'ensemble des indicateurs clés, des grandes phases et des risques majeurs du projet "Magasin Autonome".</p>
+                    <p class="text-stone-600 max-w-3xl">Cette section est une synthèse exécutive du projet. Elle donne une vue d'ensemble immédiate des indicateurs clés (KPIs), de la feuille de route globale et des zones de vigilance. C'est la photographie du projet à l'instant T.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="kpi-card">
-                        <h3 class="text-stone-500 text-sm font-medium mb-2">DÉLAI GLOBAL</h3>
-                        <p class="text-3xl font-bold">1 Année Cible</p>
+                        <h3 class="text-stone-500 text-sm font-medium uppercase mb-2">Délai Global</h3>
+                        <p class="text-3xl font-bold text-stone-800">1 Année Cible</p>
                     </div>
                     <div class="kpi-card">
-                        <h3 class="text-stone-500 text-sm font-medium mb-2">DURÉE PLANIFIÉE</h3>
-                        <p class="text-3xl font-bold">221 Jours</p>
+                        <h3 class="text-stone-500 text-sm font-medium uppercase mb-2">Durée Planifiée</h3>
+                        <p class="text-3xl font-bold text-stone-800">221 Jours</p>
                     </div>
                     <div class="kpi-card">
-                        <h3 class="text-stone-500 text-sm font-medium mb-2">RISQUES CRITIQUES</h3>
+                        <h3 class="text-stone-500 text-sm font-medium uppercase mb-2">Risques Critiques</h3>
                         <p class="text-3xl font-bold text-red-600">3</p>
                     </div>
                 </div>
@@ -77,14 +111,14 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-white p-6 rounded-lg shadow">
                          <h3 class="text-xl font-semibold mb-4">Feuille de Route Globale</h3>
-                         <p class="text-stone-600 mb-4">Ce diagramme illustre les 5 phases majeures du projet, de la conception initiale au support post-lancement, sur une durée totale de 221 jours ouvrés.</p>
+                         <p class="text-stone-600 mb-4">Ce diagramme illustre les 5 phases majeures du projet, de la conception initiale au support post-lancement. Il matérialise le chemin critique vers la mise en production.</p>
                         <div class="chart-container h-72 max-h-[40vh]">
                             <canvas id="mainGanttChart"></canvas>
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow">
                         <h3 class="text-xl font-semibold mb-4">Cartographie des Risques par Criticité</h3>
-                        <p class="text-stone-600 mb-4">Cette vue synthétise la répartition des risques identifiés en fonction de leur niveau de criticité (Probabilité x Gravité). Cliquez sur la section "Risques" pour une analyse interactive.</p>
+                        <p class="text-stone-600 mb-4">Cette vue synthétise la répartition des risques identifiés en fonction de leur niveau de criticité. Elle met en lumière les menaces qui nécessitent le plus d'attention.</p>
                         <div class="chart-container h-72 max-h-[40vh]">
                             <canvas id="riskSummaryChart"></canvas>
                         </div>
@@ -96,47 +130,58 @@
             <section id="methodology" class="section">
                 <div class="mb-8">
                     <h2 class="text-3xl font-bold mb-2">Cadre Méthodologique : Le "V-Scrum"</h2>
-                    <p class="text-stone-600">Ce projet adopte une approche hybride sur mesure pour sécuriser les développements complexes tout en garantissant la flexibilité nécessaire à l'application mobile. Cette section explique comment la rigueur du Cycle en V et l'agilité de Scrum sont articulées.</p>
+                    <p class="text-stone-600 max-w-3xl">Le succès d'un projet complexe dépend du choix de la bonne "recette". Cette section explique le "comment" : comment nous allons organiser le travail pour livrer le projet à temps et en qualité, en combinant trois approches complémentaires.</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow mb-8">
+                    <h3 class="text-xl font-semibold mb-4 text-center">Une Approche Hybride pour Allier Rigueur et Flexibilité</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
                         <div class="border-r-0 md:border-r md:pr-8 border-stone-200">
-                            <h3 class="text-xl font-semibold text-blue-700 mb-4">Cycle en V : Application Magasin</h3>
-                            <p class="text-stone-600 mb-4">Idéal pour le logiciel cœur (RFID, Paiement, SAP) où les exigences sont stables et la fiabilité est primordiale.</p>
+                            <h4 class="text-lg font-semibold text-orange-700 mb-2">1. Cycle en V : Pour le Cœur du Système</h4>
+                            <p class="text-stone-600 mb-4">Utilisé pour l'application en magasin (RFID, Paiement, SAP). C'est une approche très structurée, idéale quand les exigences sont stables et la fiabilité est primordiale.</p>
                             <ul class="space-y-2 list-disc list-inside text-stone-700">
-                                <li><strong>Stabilité :</strong> Les processus physiques sont bien définis en amont.</li>
-                                <li><strong>Rigueur :</strong> Validation systématique à chaque étape (conception, développement, tests).</li>
-                                <li><strong>Planification :</strong> Vision séquentielle claire, rassurante pour les lots critiques.</li>
+                                <li><strong>Stabilité & Rigueur :</strong> Validation systématique à chaque étape.</li>
+                                <li><strong>Planification :</strong> Vision séquentielle claire et rassurante.</li>
                             </ul>
                         </div>
                         <div>
-                            <h3 class="text-xl font-semibold text-green-700 mb-4">Agile (Scrum) : Application Mobile</h3>
-                            <p class="text-stone-600 mb-4">Parfait pour l'interface client, qui doit évoluer rapidement en fonction des retours utilisateurs.</p>
-                            <ul class="space-y-2 list-disc list-inside text-stone-700">
-                                <li><strong>Flexibilité :</strong> Ajustement des priorités à chaque sprint de 3 semaines.</li>
-                                <li><strong>Valeur rapide :</strong> Livraison d'un produit fonctionnel (MVP) au plus tôt.</li>
-                                <li><strong>Implication Client :</strong> Le marketing et l'innovation participent aux revues de sprint.</li>
+                            <h4 class="text-lg font-semibold text-green-700 mb-2">2. Agile (Scrum) : Pour l'Application Client</h4>
+                            <p class="text-stone-600 mb-4">Utilisé pour l'application mobile. C'est une approche flexible par cycles courts ("sprints") pour s'adapter rapidement aux besoins des utilisateurs.</p>
+                             <ul class="space-y-2 list-disc list-inside text-stone-700">
+                                <li><strong>Flexibilité :</strong> Ajustement des priorités à chaque sprint.</li>
+                                <li><strong>Valeur rapide :</strong> Un produit utilisable est livré très tôt.</li>
                             </ul>
                         </div>
                     </div>
                     <div class="mt-8 pt-8 border-t border-stone-200">
-                        <h3 class="text-xl font-semibold text-center mb-4">La Clé de la Synchronisation : Le Contrat d'Interface</h3>
-                        <p class="text-center text-stone-600 max-w-3xl mx-auto mb-6">Pour que ces deux mondes communiquent sans accroc, une phase initiale de 3 semaines est dédiée à la création d'un "Contrat d'Interface Technique". Ce document fige les règles de communication (API) entre les deux systèmes, devenant la référence unique pour les deux équipes.</p>
-                         <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 text-center">
-                            <div class="p-4 bg-blue-100 border border-blue-200 rounded-lg">
-                                <p class="font-semibold text-blue-800">Lot 1: Cycle en V</p>
-                                <p class="text-sm text-blue-700">Planification Long Terme</p>
-                            </div>
-                            <div class="font-bold text-2xl text-stone-500">↔️</div>
-                             <div class="p-4 bg-stone-200 border border-stone-300 rounded-lg shadow-lg">
-                                <p class="font-semibold text-stone-800">Contrat d'Interface</p>
-                                <p class="text-sm text-stone-600">(API figée)</p>
-                            </div>
-                            <div class="font-bold text-2xl text-stone-500">↔️</div>
-                            <div class="p-4 bg-green-100 border border-green-200 rounded-lg">
-                                <p class="font-semibold text-green-800">Lot 2: Agile</p>
-                                <p class="text-sm text-green-700">Sprints de 3 semaines</p>
-                            </div>
+                        <h4 class="text-lg font-semibold text-center mb-4">La Synchronisation : Le Contrat d'Interface</h4>
+                        <p class="text-center text-stone-600 max-w-3xl mx-auto mb-6">Pour que ces deux mondes communiquent sans accroc, une phase initiale de 3 semaines est dédiée à la création d'un "Contrat d'Interface Technique". Ce document fige les règles de communication (API) entre les deux systèmes.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-semibold mb-4 text-center">3. Kanban : Pour Visualiser le Flux de Travail</h3>
+                    <p class="text-stone-600 max-w-3xl mx-auto text-center mb-6">En complément de Scrum, nous utilisons un tableau Kanban pour visualiser le flux de travail de l'équipe Agile. C'est un outil visuel qui permet à tous de voir où en est chaque fonctionnalité.</p>
+                    <div class="kanban-board">
+                        <div class="kanban-column">
+                            <h4 class="font-semibold text-stone-700 text-center">Backlog (Idées)</h4>
+                            <div class="kanban-card"><p class="font-medium text-sm">Paiement en 1 clic</p></div>
+                            <div class="kanban-card"><p class="font-medium text-sm">Historique des achats</p></div>
+                        </div>
+                        <div class="kanban-column">
+                            <h4 class="font-semibold text-stone-700 text-center">À Faire (Sprint)</h4>
+                             <div class="kanban-card"><p class="font-medium text-sm">Connexion via Face ID</p></div>
+                        </div>
+                        <div class="kanban-column bg-orange-100">
+                            <h4 class="font-semibold text-orange-800 text-center">En Cours</h4>
+                             <div class="kanban-card"><p class="font-medium text-sm">Affichage promotions</p></div>
+                        </div>
+                        <div class="kanban-column">
+                            <h4 class="font-semibold text-stone-700 text-center">En Test</h4>
+                             <div class="kanban-card"><p class="font-medium text-sm">Scan de produit</p></div>
+                        </div>
+                        <div class="kanban-column bg-green-100">
+                            <h4 class="font-semibold text-green-800 text-center">Terminé</h4>
+                             <div class="kanban-card"><p class="font-medium text-sm">Création de compte</p></div>
                         </div>
                     </div>
                 </div>
@@ -146,28 +191,36 @@
             <section id="governance" class="section">
                 <div class="mb-8">
                     <h2 class="text-3xl font-bold mb-2">Organisation & Gouvernance</h2>
-                    <p class="text-stone-600">Le succès du projet repose sur une structure claire et des responsabilités bien définies. Explorez ici qui fait quoi, et comment les décisions sont prises.</p>
+                    <p class="text-stone-600 max-w-3xl">Un projet réussi est un projet où chacun sait ce qu'il a à faire. Cette section présente l'équipe, clarifie les rôles et les responsabilités de chacun (le "qui fait quoi ?"), et décrit les instances de décision qui vont rythmer le projet.</p>
                 </div>
                  <div class="bg-white p-6 rounded-lg shadow mb-8">
-                    <h3 class="text-xl font-semibold mb-4">Équipe Projet BRAIN IT</h3>
+                    <h3 class="text-xl font-semibold mb-4">Équipe Projet Pivotis</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="roles-container">
                     </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-lg shadow">
                     <h3 class="text-xl font-semibold mb-4">Matrice des Responsabilités (RACI)</h3>
-                    <p class="text-stone-600 mb-4">Le tableau ci-dessous clarifie le rôle de chaque partie prenante pour les activités et livrables majeurs du projet. Survolez une cellule pour voir la définition du rôle.</p>
+                    <div class="mb-6 prose max-w-none">
+                        <p>Le tableau ci-dessous est un outil essentiel de communication. Il élimine les zones de flou en définissant pour chaque grande tâche qui est responsable de l'action et de la décision.</p>
+                        <div class="flex flex-wrap gap-4 text-sm">
+                            <div class="flex items-center"><span class="w-4 h-4 rounded-full bg-green-500 mr-2"></span><strong>R - Réalisateur</strong></div>
+                            <div class="flex items-center"><span class="w-4 h-4 rounded-full bg-red-500 mr-2"></span><strong>A - Approbateur</strong></div>
+                            <div class="flex items-center"><span class="w-4 h-4 rounded-full bg-yellow-500 mr-2"></span><strong>C - Consulté</strong></div>
+                            <div class="flex items-center"><span class="w-4 h-4 rounded-full bg-blue-500 mr-2"></span><strong>I - Informé</strong></div>
+                        </div>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white border border-stone-200">
                              <thead class="bg-stone-100">
                                 <tr>
-                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-stone-600">Livrable / Activité</th>
-                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-600">DP</th>
-                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-600">CP-V</th>
-                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-600">SM</th>
-                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-600">AS</th>
-                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-600">Client PO</th>
-                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-600">Client DSI</th>
+                                    <th class="py-2 px-4 border-b text-left text-sm font-semibold text-stone-700">Livrable / Activité</th>
+                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-700">DP</th>
+                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-700">CP-V</th>
+                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-700">SM</th>
+                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-700">AS</th>
+                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-700">Client PO</th>
+                                    <th class="py-2 px-4 border-b text-center text-sm font-semibold text-stone-700">Client DSI</th>
                                 </tr>
                             </thead>
                             <tbody id="raci-table-body">
@@ -181,29 +234,21 @@
             <section id="risks" class="section">
                 <div class="mb-8">
                     <h2 class="text-3xl font-bold mb-2">Maîtrise des Risques</h2>
-                    <p class="text-stone-600">Anticiper pour mieux agir. Cette section offre une vue interactive des risques projet, permettant de les analyser par catégorie et de visualiser leur criticité.</p>
+                    <p class="text-stone-600 max-w-3xl">Tout projet comporte des incertitudes. Cette section a pour but de les identifier, de les évaluer et surtout, de les anticiper. Nous présentons ici les menaces potentielles pour le projet et les plans d'action que nous mettons en place pour les maîtriser.</p>
                 </div>
-                <div class="flex justify-center mb-6 space-x-2">
-                    <button class="risk-filter-btn active bg-blue-600 text-white px-4 py-2 rounded-full text-sm" data-category="Tous">Tous</button>
-                    <button class="risk-filter-btn bg-white hover:bg-stone-100 px-4 py-2 rounded-full text-sm" data-category="Technologique">Technologique</button>
-                    <button class="risk-filter-btn bg-white hover:bg-stone-100 px-4 py-2 rounded-full text-sm" data-category="Organisationnel">Organisationnel</button>
-                    <button class="risk-filter-btn bg-white hover:bg-stone-100 px-4 py-2 rounded-full text-sm" data-category="Planification">Planification</button>
-                    <button class="risk-filter-btn bg-white hover:bg-stone-100 px-4 py-2 rounded-full text-sm" data-category="Humain">Humain</button>
-                    <button class="risk-filter-btn bg-white hover:bg-stone-100 px-4 py-2 rounded-full text-sm" data-category="Périmètre">Périmètre</button>
-                </div>
-
+                
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow">
-                         <h3 class="text-xl font-semibold mb-4">Cartographie Probabilité / Gravité</h3>
-                         <p class="text-stone-600 mb-4">Cliquez sur une bulle pour afficher les détails du risque et son plan de mitigation. La taille de la bulle représente sa criticité.</p>
-                        <div class="chart-container">
+                         <h3 class="text-xl font-semibold mb-4">Cartographie des Risques (Probabilité / Impact)</h3>
+                         <p class="text-stone-600 mb-4">Ce graphique positionne chaque risque pour une évaluation visuelle immédiate. La taille de la bulle représente sa criticité. Cliquez sur une bulle (ex: R01) pour voir son plan d'action détaillé.</p>
+                        <div class="chart-container h-[450px] max-h-[60vh]">
                             <canvas id="riskBubbleChart"></canvas>
                         </div>
                     </div>
                     <div id="risk-details-panel" class="bg-white p-6 rounded-lg shadow risk-card">
                         <h3 class="text-xl font-semibold mb-4">Détail du Risque</h3>
                         <div id="risk-details-content" class="text-stone-600">
-                           <p>Sélectionnez un risque sur le graphique pour voir les détails ici.</p>
+                           <p>Sélectionnez un risque dans le graphique pour voir les détails ici.</p>
                         </div>
                     </div>
                 </div>
@@ -213,11 +258,53 @@
             <section id="planning" class="section">
                  <div class="mb-8">
                     <h2 class="text-3xl font-bold mb-2">Planning Opérationnel</h2>
-                    <p class="text-stone-600">La feuille de route détaillée du projet. Ce diagramme de Gantt interactif présente les phases, les tâches principales, et leurs dépendances pour atteindre la mise en production en un an.</p>
+                    <p class="text-stone-600 max-w-3xl">Cette section présente la feuille de route détaillée du projet. Elle se décompose en deux vues complémentaires : d'abord, un schéma illustrant le déploiement par équipe, puis le diagramme de Gantt détaillé pour une vision chronologique précise.</p>
                 </div>
+
+                <div class="bg-white p-6 rounded-lg shadow mb-8">
+                    <h3 class="text-xl font-semibold mb-4 text-center">Déploiement par Équipe et Flux de Synchronisation</h3>
+                    <p class="text-stone-600 max-w-3xl mx-auto text-center mb-6">Ce schéma illustre comment les deux équipes principales travaillent en parallèle et comment leurs travaux convergent.</p>
+                    <div class="space-y-4">
+                        <div class="text-center p-4 bg-stone-100 rounded-lg">
+                            <p class="font-bold">Phase 0 : Cadrage & Architecture (3 semaines)</p>
+                        </div>
+                        <div class="flex justify-center text-2xl font-bold text-stone-400">↓</div>
+                        <div class="text-center p-4 bg-yellow-100 border border-yellow-300 rounded-lg shadow-md">
+                            <p class="font-bold text-yellow-800">Livrable Clé : Contrat d'Interface Technique (API)</p>
+                        </div>
+                        <div class="flex justify-center text-2xl font-bold text-stone-400">↓</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                                <h4 class="font-bold text-orange-800 text-center mb-2">Équipe Cœur de Système (Cycle en V)</h4>
+                                <div class="text-center space-y-2">
+                                    <div class="p-2 bg-white rounded shadow-sm">Conception (45j)</div>
+                                    <div class="text-stone-400">↓</div>
+                                    <div class="p-2 bg-white rounded shadow-sm">Réalisation (100j)</div>
+                                    <div class="text-stone-400">↓</div>
+                                    <div class="p-2 bg-white rounded shadow-sm">Tests d'Intégration (20j)</div>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                                <h4 class="font-bold text-green-800 text-center mb-2">Équipe Application Mobile (Agile/Scrum)</h4>
+                                <div class="text-center space-y-2">
+                                    <div class="p-2 bg-white rounded shadow-sm">Sprint 0 (5j)</div>
+                                    <div class="text-stone-400">↓</div>
+                                    <div class="p-2 bg-white rounded shadow-sm">Sprints 1 à 7 (105j)</div>
+                                    <div class="text-stone-400">↓</div>
+                                    <div class="p-2 bg-white rounded shadow-sm">Recette & TNR (10j)</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center text-2xl font-bold text-stone-400">↓</div>
+                        <div class="text-center p-4 bg-purple-100 border border-purple-300 rounded-lg">
+                             <p class="font-bold text-purple-800">Phase 3 & 4 : Intégration, Recette & Déploiement</p>
+                        </div>
+                    </div>
+                </div>
+
                  <div class="bg-white p-6 rounded-lg shadow">
-                    <h3 class="text-xl font-semibold mb-4">Diagramme de Gantt du Projet</h3>
-                    <div class="chart-container h-[600px] max-h-[70vh]">
+                    <h3 class="text-xl font-semibold mb-4">Diagramme de Gantt Détaillé du Projet</h3>
+                    <div class="chart-container h-[700px] max-h-[80vh]">
                         <canvas id="detailedGanttChart"></canvas>
                     </div>
                 </div>
@@ -228,14 +315,14 @@
     <script>
         const projectData = {
             risks: [
-                { id: 'R01', category: 'Planification', description: "Le délai critique de 1 an n'est pas respecté.", probability: 3, gravity: 4, strategy: 'Atténuer', actions: 'Pilotage resserré (COPROJ bi-hebdomadaire), suivi du chemin critique, allocation d\'une marge projet.', owner: 'DP' },
-                { id: 'R02', category: 'Technologique', description: "La montée de version SAP provoque une rupture de compatibilité.", probability: 3, gravity: 4, strategy: 'Atténuer', actions: "Obtenir la roadmap technique de la nouvelle version SAP, concevoir une couche d'abstraction (Adapter Pattern), planifier des tests de non-régression.", owner: 'AS' },
-                { id: 'R03', category: 'Organisationnel', description: "Indisponibilité des experts SAP du client.", probability: 4, gravity: 3, strategy: 'Atténuer', actions: 'Formaliser le besoin (0.5 ETP expert SAP) et obtenir la nomination officielle du référent dès le lancement.', owner: 'DP' },
-                { id: 'R04', category: 'Organisationnel', description: "Désalignement des parties prenantes client (DSI, Mktg, Innov).", probability: 3, gravity: 3, strategy: 'Atténuer', actions: 'Application stricte de la matrice RACI, escalade systématique des blocages au COPROJ/COPIL.', owner: 'DP' },
-                { id: 'R05', category: 'Technologique', description: "Fiabilité de lecture RFID dégradée par interférences.", probability: 2, gravity: 4, strategy: 'Atténuer', actions: 'Réaliser un POC en magasin, sélectionner une technologie performante, développer des algorithmes de correction.', owner: 'CP-V / AS' },
-                { id: 'R06', category: 'Humain', description: "Turnover d'un membre clé de l'équipe.", probability: 2, gravity: 3, strategy: 'Atténuer', actions: 'Maintenir une documentation projet rigoureuse, favoriser le travail en binôme sur les modules critiques.', owner: 'DP / CP-V' },
-                { id: 'R07', category: 'Périmètre', description: "Dérive du périmètre sur l'app mobile.", probability: 3, gravity: 2, strategy: 'Éviter', actions: 'Le PO Client est seul maître du backlog. Toute demande hors MVP est évaluée et validée formellement.', owner: 'SM / DP' },
-                { id: 'R08', category: 'Technologique', description: "Vulnérabilités de sécurité sur les puces RFID (clonage).", probability: 2, gravity: 3, strategy: 'Atténuer', actions: 'Utiliser des puces RFID cryptées, mettre en œuvre des contrôles de sécurité côté serveur.', owner: 'AS' }
+                { id: 'R01', category: 'Planification', description: "Le délai de 1 an n'est pas tenu.", probability: 3, gravity: 4, impact: "Échec du projet, pénalités financières.", strategy: 'Atténuer', actions: 'Pilotage serré, suivi du chemin critique.', owner: 'DP' },
+                { id: 'R02', category: 'Technologique', description: "Incompatibilité avec la nouvelle version SAP.", probability: 3, gravity: 4, impact: "Blocage complet du système, développements à refaire.", strategy: 'Atténuer', actions: "Anticiper l'architecture, isoler le code via une couche d'abstraction.", owner: 'AS' },
+                { id: 'R03', category: 'Organisationnel', description: "Manque de disponibilité des experts SAP client.", probability: 4, gravity: 3, impact: "Retards importants, blocage des tests.", strategy: 'Atténuer', actions: 'Formaliser le besoin en ressource et obtenir une nomination officielle.', owner: 'DP' },
+                { id: 'R05', category: 'Technologique', description: "Manque de fiabilité de la lecture RFID.", probability: 2, gravity: 4, impact: "Erreurs de facturation, mauvaise expérience client.", strategy: 'Atténuer', actions: 'Faire un POC en magasin, choisir une technologie performante.', owner: 'CP-V / AS' },
+                { id: 'R04', category: 'Organisationnel', description: "Désaccord entre les services client (DSI, Marketing).", probability: 3, gravity: 3, impact: "Lenteur des décisions, démotivation des équipes.", strategy: 'Atténuer', actions: 'Appliquer la matrice RACI, escalader les blocages en comité.', owner: 'DP' },
+                { id: 'R06', category: 'Humain', description: "Départ d'un membre clé de l'équipe.", probability: 2, gravity: 3, impact: "Perte de connaissance, retard le temps du remplacement.", strategy: 'Atténuer', actions: 'Documenter le projet, favoriser le travail en binôme.', owner: 'DP / CP-V' },
+                { id: 'R08', category: 'Technologique', description: "Faille de sécurité des puces RFID.", probability: 2, gravity: 3, impact: "Fraude, vol de données, atteinte à l'image de marque.", strategy: 'Atténuer', actions: 'Utiliser des puces cryptées, ajouter des contrôles serveur.', owner: 'AS' },
+                { id: 'R07', category: 'Périmètre', description: "Ajout de fonctionnalités non prévues sur l'app mobile.", probability: 3, gravity: 2, impact: "Augmentation des coûts et délais.", strategy: 'Éviter', actions: 'Le Product Owner client est seul maître du périmètre. Valider tout changement.', owner: 'SM / DP' }
             ],
             planning: [
                 { id: 1, task: 'Phase 0: Cadrage & Architecture', start: 1, end: 15, duration: 15, level: 0 },
@@ -247,9 +334,15 @@
                 { id: 2.3, task: 'Tests Intégration', start: 161, end: 180, duration: 20, level: 1 },
                 { id: 2.4, task: 'Documentation', start: 181, end: 195, duration: 15, level: 1 },
                 { id: 3, task: 'Phase 2: Lot 2 - App Mobile (Agile)', start: 16, end: 140, duration: 125, level: 0 },
-                { id: 3.1, task: 'Sprint 0', start: 16, end: 20, duration: 5, level: 1 },
-                { id: 3.2, task: 'Sprints 1 à 7', start: 21, end: 125, duration: 105, level: 1 },
-                { id: 3.3, task: 'Recette finale & TNR', start: 126, end: 135, duration: 10, level: 1 },
+                { id: 3.1, task: 'Sprint 0 (Setup)', start: 16, end: 20, duration: 5, level: 1 },
+                { id: 3.2, task: 'Sprint 1 (Connexion & Panier)', start: 21, end: 35, duration: 15, level: 2 },
+                { id: 3.3, task: 'Sprint 2 (Promotions & Fidélité)', start: 36, end: 50, duration: 15, level: 2 },
+                { id: 3.4, task: 'Sprint 3 (Paiement & Facture)', start: 51, end: 65, duration: 15, level: 2 },
+                { id: 3.5, task: 'Sprint 4 (Historique & Support)', start: 66, end: 80, duration: 15, level: 2 },
+                { id: 3.6, task: 'Sprint 5 (Améliorations UX)', start: 81, end: 95, duration: 15, level: 2 },
+                { id: 3.7, task: 'Sprint 6 (Optimisations & Tests)', start: 96, end: 110, duration: 15, level: 2 },
+                { id: 3.8, task: 'Sprint 7 (Finalisation)', start: 111, end: 125, duration: 15, level: 2 },
+                { id: 3.9, task: 'Recette finale & TNR', start: 126, end: 135, duration: 10, level: 1 },
                 { id: 4, task: 'Phase 3: Intégration & Recette Globale', start: 181, end: 220, duration: 40, level: 0 },
                 { id: 4.1, task: 'Intégration des 2 lots', start: 181, end: 190, duration: 10, level: 1 },
                 { id: 4.2, task: 'Homologation (UAT)', start: 191, end: 210, duration: 20, level: 1 },
@@ -290,12 +383,12 @@
             setupNavigation();
             populateGovernance();
             
+            projectData.risks.sort((a, b) => (b.probability * b.gravity) - (a.probability * a.gravity));
+
             createRiskSummaryChart();
-            createMainGanttChart();
             createRiskBubbleChart();
+            createMainGanttChart();
             createDetailedGanttChart();
-            
-            setupRiskFilters();
         });
         
         function setupNavigation() {
@@ -310,11 +403,7 @@
                     button.classList.add('active');
 
                     sections.forEach(section => {
-                        if (section.id === targetId) {
-                            section.classList.add('active');
-                        } else {
-                            section.classList.remove('active');
-                        }
+                        section.classList.toggle('active', section.id === targetId);
                     });
                 });
             });
@@ -339,8 +428,9 @@
                 let cells = `<td class="py-3 px-4 text-sm font-medium">${item.activity}</td>`;
                 Object.keys(item).filter(k => k !== 'activity').forEach(key => {
                     const role = item[key];
+                    const roleClass = `raci-${role.toLowerCase()}`;
                     cells += `
-                        <td class="raci-cell py-3 px-4 text-center font-bold relative">
+                        <td class="raci-cell ${roleClass} py-3 px-4 text-center font-bold relative">
                            <span class="inline-block w-6 h-6 leading-6 rounded-full text-xs text-white ${
                                {'R': 'bg-green-500', 'A': 'bg-red-500', 'C': 'bg-yellow-500', 'I': 'bg-blue-500'}[role] || 'bg-gray-300'
                            }">${role}</span>
@@ -372,7 +462,7 @@
                     datasets: [{
                         label: 'Nombre de Risques',
                         data: Object.values(criticalityLevels),
-                        backgroundColor: ['#4ade80', '#facc15', '#fb923c', '#f87171'],
+                        backgroundColor: ['#bbf7d0', '#fef08a', '#fb923c', '#f87171'],
                         borderColor: '#ffffff',
                         borderWidth: 2,
                     }]
@@ -396,8 +486,8 @@
                     datasets: [{
                         label: 'Durée (jours)',
                         data: mainPhases.map(p => [p.start, p.end]),
-                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                        borderColor: 'rgba(249, 115, 22, 1)',
                         borderWidth: 1,
                         barPercentage: 0.6,
                     }]
@@ -424,27 +514,16 @@
             });
         }
         
-        function getRiskData(category = 'Tous') {
-            const filteredRisks = category === 'Tous'
-                ? projectData.risks
-                : projectData.risks.filter(r => r.category === category);
-
-            return filteredRisks.map(r => ({
+        function createRiskBubbleChart() {
+            const ctx = document.getElementById('riskBubbleChart').getContext('2d');
+            
+            const data = projectData.risks.map(r => ({
                 x: r.probability,
                 y: r.gravity,
-                r: r.probability * r.gravity,
+                r: (r.probability * r.gravity) * 1.5,
                 label: r.id,
                 details: r,
             }));
-        }
-
-        function createRiskBubbleChart(category = 'Tous') {
-            const ctx = document.getElementById('riskBubbleChart').getContext('2d');
-            if (riskBubbleChart) {
-                riskBubbleChart.destroy();
-            }
-            
-            const data = getRiskData(category);
 
             riskBubbleChart = new Chart(ctx, {
                 type: 'bubble',
@@ -453,21 +532,38 @@
                         label: 'Risques Projet',
                         data: data,
                         backgroundColor: data.map(d => {
-                             const criticality = d.r;
+                             const criticality = d.details.probability * d.details.gravity;
                              if (criticality >= 12) return 'rgba(239, 68, 68, 0.7)';
                              if (criticality >= 8) return 'rgba(249, 115, 22, 0.7)';
-                             if (criticality >= 4) return 'rgba(234, 179, 8, 0.7)';
+                             if (criticality >= 4) return 'rgba(251, 191, 36, 0.7)';
                              return 'rgba(34, 197, 94, 0.7)';
                         }),
-                        borderColor: 'rgba(0,0,0,0.1)',
+                        borderColor: data.map(d => {
+                             const criticality = d.details.probability * d.details.gravity;
+                             if (criticality >= 12) return 'rgba(239, 68, 68, 1)';
+                             if (criticality >= 8) return 'rgba(249, 115, 22, 1)';
+                             if (criticality >= 4) return 'rgba(251, 191, 36, 1)';
+                             return 'rgba(34, 197, 94, 1)';
+                        }),
+                        borderWidth: 1,
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { min: 0, max: 5, title: { display: true, text: 'Probabilité (1-4)' } },
-                        y: { min: 0, max: 5, title: { display: true, text: 'Gravité (1-4)' } }
+                        x: { 
+                            min: 0.5, 
+                            max: 4.5, 
+                            title: { display: true, text: 'Probabilité' },
+                            ticks: { stepSize: 1 }
+                        },
+                        y: { 
+                            min: 0.5, 
+                            max: 4.5, 
+                            title: { display: true, text: 'Impact / Gravité' },
+                            ticks: { stepSize: 1 }
+                        }
                     },
                     plugins: {
                         legend: { display: false },
@@ -475,7 +571,8 @@
                             callbacks: {
                                 label: function(context) {
                                     const item = context.raw;
-                                    return `${item.label}: Criticité ${item.r}`;
+                                    const criticality = item.details.probability * item.details.gravity;
+                                    return `${item.label}: ${item.details.description} (Criticité: ${criticality})`;
                                 }
                             }
                         }
@@ -502,32 +599,20 @@
             panel.innerHTML = `
                 <h4 class="font-bold text-lg mb-2">${risk.id}: ${risk.description}</h4>
                 <div class="mb-2">
-                    <span class="font-semibold">Catégorie:</span> ${risk.category}
-                </div>
-                <div class="mb-2">
                     <span class="font-semibold">Criticité:</span> <span class="font-bold ${criticalityClass}">${criticality}</span> (P: ${risk.probability} x G: ${risk.gravity})
                 </div>
-                 <div class="mb-2">
+                <div class="mb-2">
                     <span class="font-semibold">Responsable:</span> ${risk.owner}
                 </div>
+                <div class="mt-4 pt-4 border-t">
+                     <h5 class="font-semibold mb-1 text-red-700">Impact si non maîtrisé</h5>
+                     <p class="text-sm text-red-700 bg-red-50 p-2 rounded">${risk.impact}</p>
+                </div>
                 <div class="mt-4 pt-2 border-t">
-                    <h5 class="font-semibold mb-1">Plan de Réponse (${risk.strategy})</h5>
+                    <h5 class="font-semibold mb-1">Plan d'Action (${risk.strategy})</h5>
                     <p class="text-sm">${risk.actions}</p>
                 </div>
             `;
-        }
-        
-        function setupRiskFilters() {
-            const filterButtons = document.querySelectorAll('.risk-filter-btn');
-            filterButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    filterButtons.forEach(btn => btn.classList.remove('active', 'bg-blue-600', 'text-white'));
-                    button.classList.add('active', 'bg-blue-600', 'text-white');
-                    const category = button.dataset.category;
-                    createRiskBubbleChart(category);
-                    document.getElementById('risk-details-content').innerHTML = '<p>Sélectionnez un risque sur le graphique pour voir les détails ici.</p>';
-                });
-            });
         }
         
         function createDetailedGanttChart() {
@@ -537,12 +622,24 @@
             detailedGanttChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: tasks.map(p => p.task),
+                    labels: tasks.map(p => {
+                        if (p.level === 2) return `    ↳ ${p.task}`;
+                        if (p.level === 1) return `  • ${p.task}`;
+                        return p.task;
+                    }),
                     datasets: [{
                         label: 'Durée (jours)',
                         data: tasks.map(p => [p.start, p.end]),
-                        backgroundColor: tasks.map(p => p.level === 0 ? 'rgba(59, 130, 246, 0.8)' : 'rgba(107, 114, 128, 0.6)'),
-                        borderColor: tasks.map(p => p.level === 0 ? 'rgba(59, 130, 246, 1)' : 'rgba(107, 114, 128, 1)'),
+                        backgroundColor: tasks.map(p => {
+                            if (p.level === 0) return 'rgba(249, 115, 22, 0.8)'; // Phase (Orange)
+                            if (p.level === 1) return 'rgba(107, 114, 128, 0.7)'; // Sub-task (Gray)
+                            return 'rgba(156, 163, 175, 0.6)'; // Sprint (Light Gray)
+                        }),
+                        borderColor: tasks.map(p => {
+                            if (p.level === 0) return 'rgba(249, 115, 22, 1)';
+                            if (p.level === 1) return 'rgba(107, 114, 128, 1)';
+                            return 'rgba(156, 163, 175, 1)';
+                        }),
                         borderWidth: 1,
                         barPercentage: 0.8,
                         categoryPercentage: 0.9
@@ -553,8 +650,8 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { beginAtZero: true, title: { display: true, text: 'Jours Projet' } },
-                        y: { ticks: { font: { size: 10 } } }
+                        x: { beginAtZero: true, stacked: false, title: { display: true, text: 'Jours Projet' } },
+                        y: { stacked: false, ticks: { font: { size: 10 } } }
                     },
                     plugins: {
                         legend: { display: false },
@@ -562,7 +659,7 @@
                             callbacks: {
                                 label: function(context) {
                                     const item = tasks[context.dataIndex];
-                                    return `${item.task}: ${item.duration} jours (J+${item.start} à J+${item.end})`;
+                                    return `${item.task.replace('↳','').trim()}: ${item.duration} jours (J+${item.start} à J+${item.end})`;
                                 }
                             }
                         }
